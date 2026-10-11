@@ -1,0 +1,39 @@
+node_modules/
+dist/
+.tools/
+*.tsbuildinfo
+
+# Metadados locais do Git (a pasta .git existente e somente leitura)
+.git-local/
+
+# Configuracoes locais e credenciais
+.env*
+.aws/
+.codex/
+.agents/
+.npmrc
+*credentials*
+*secret*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+
+# Curriculos e dados pessoais; preservar os documentos ficticios dos testes
+*.pdf
+*.doc
+*.docx
+*.odt
+*.rtf
+*.csv
+*.xlsx
+curriculos/
+resumes/
+dados-pessoais/
+private/
+personal/
+!tests/fixtures/curriculo-ficticio.pdf
+!tests/fixtures/curriculo-ficticio.docx
+!tests/fixtures/curriculo-ficticio-multipagina.pdf

@@ -1,0 +1,38 @@
+Mariana Costa
+Engenheira de Software
+mariana.costa@exemplo.com | (21) 98888-7777 | Rio de Janeiro, RJ
+RESUMO PROFISSIONAL
+Experiencia em desenvolvimento de produtos digitais e lideranca tecnica.
+EXPERIENCIA PROFISSIONAL
+Engenheira de Software Senior
+Empresa Aurora | Sao Paulo, SP
+marco de 2025 - atual
+Responsavel por arquitetura de servicos e mentoria de equipes.
+Implementei melhorias de desempenho e documentei processos.
+Liderei revisoes de codigo e planejei entregas com varias equipes.
+Atuei com seguranca, testes e observabilidade.
+Desenvolvi integracoes e acompanhei indicadores do produto.
+Organizei treinamento interno e reduzi tarefas repetitivas.
+
+Analista de Sistemas
+Empresa Horizonte | Curitiba, PR
+janeiro de 2021 - fevereiro de 2025
+Responsavel por manutencao de sistemas internos.
+Criei relatorios para as areas de operacoes e suporte.
+Documentei requisitos e acompanhei entregas mensais.
+Desenvolvedora Junior | Empresa Sol
+2019 - 2020
+Desenvolvi telas e corrigi defeitos em aplicacoes web.
+FORMACAO ACADEMICA
+Bacharelado em Ciencia da Computacao
+Universidade Modelo | Belo Horizonte, MG
+2015 - 2019
+Projeto final sobre acessibilidade em interfaces web.
+Pos-graduacao em Engenharia de Software | Instituto Exemplo | 2020 - 2021
+CERTIFICACOES
+Certificacao em Arquitetura de Software - Escola Aberta, 2024
+IDIOMAS
+Ingles - avancado
+Espanhol - intermediario
+HABILIDADES
+TypeScript, testes automatizados, arquitetura
