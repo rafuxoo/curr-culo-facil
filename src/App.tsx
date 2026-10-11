@@ -24,7 +24,7 @@ function App() {
   })
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit')
   const [message, setMessage] = useState('')
-  const [storageError, setStorageError] = useState(false)
+  const [storageError, setStorageError] = useState('')
   const [errors, setErrors] = useState<ResumeErrors>({})
   const [importResult, setImportResult] = useState<ImportedResume | null>(null)
   const [importFileName, setImportFileName] = useState('')
@@ -42,8 +42,8 @@ function App() {
     const timer = window.setTimeout(() => {
       try {
         saveResume(window.localStorage, data)
-        setStorageError(false)
-      } catch { setStorageError(true) }
+        setStorageError('')
+      } catch { setStorageError('Não foi possível salvar neste dispositivo. Verifique o armazenamento do navegador.') }
     }, 300)
     return () => window.clearTimeout(timer)
   }, [data])
@@ -56,8 +56,13 @@ function App() {
   const updateEducation = (id: number, field: keyof Education, value: string) => setData(current => ({ ...current, education: current.education.map(item => item.id === id ? { ...item, [field]: value } : item) }))
   const clearData = () => {
     if (!window.confirm('Apagar todos os dados deste currículo armazenados neste dispositivo?')) return
-    try { clearResume(window.localStorage); setStorageError(false) }
-    catch { setStorageError(true) }
+    try { clearResume(window.localStorage) }
+    catch {
+      setStorageError('Não foi possível apagar os dados deste dispositivo. Eles permanecem no formulário; tente novamente ou limpe os dados nas configurações do navegador.')
+      setMessage('Não foi possível apagar os dados deste dispositivo.')
+      return
+    }
+    setStorageError('')
     setData(initialResume)
     setErrors({})
     setActiveTab('edit')
@@ -122,7 +127,7 @@ function App() {
         <section className="form-section last-section"><div className="section-heading"><span className="section-icon"><Icon name="spark" size={20}/></span><div><h3>Habilidades</h3><p>Destaque o que você faz bem.</p></div></div><TextField label="Suas habilidades" value={data.skills} onChange={value => update('skills', value)} placeholder="Ex.: Excel, atendimento ao cliente, comunicação, gestão de projetos" rows={3}/><p className="field-help">Separe cada habilidade por vírgula ou linha.</p></section>
       </div><aside className={`preview-panel ${activeTab !== 'preview' ? 'mobile-hidden' : ''}`}><div className="preview-toolbar"><div><span className="live-dot"/> PRÉ-VISUALIZAÇÃO AO VIVO</div><span>Formato A4</span></div><div className="paper-frame"><ResumePage data={data}/></div><div className="preview-footer"><Icon name="check" size={16}/> Modelo profissional gratuito</div></aside></div>
       <div className="bottom-action"><div><strong>Pronto para dar o próximo passo?</strong><p>Revise os dados e salve seu currículo em PDF.</p></div><button className="button button-primary" onClick={exportPdf}><Icon name="download" size={18}/> Exportar meu currículo</button></div>
-      <div className="privacy-controls"><p className="privacy-note"><Icon name="shield" size={16}/> Seus dados são salvos automaticamente neste dispositivo. Não são enviados a servidores. Em dispositivo compartilhado, apague-os após o uso.</p><button type="button" className="clear-button" onClick={clearData}><Icon name="trash" size={16}/> Limpar meus dados</button></div>{storageError && <p className="storage-error" role="alert">Não foi possível salvar neste dispositivo. Verifique o armazenamento do navegador.</p>}
+      <div className="privacy-controls"><p className="privacy-note"><Icon name="shield" size={16}/> Seus dados são salvos automaticamente neste dispositivo. Não são enviados a servidores. Em dispositivo compartilhado, apague-os após o uso.</p><button type="button" className="clear-button" onClick={clearData}><Icon name="trash" size={16}/> Limpar meus dados</button></div>{storageError && <p className="storage-error" role="alert">{storageError}</p>}
       </>}
       {message && <p className="status-message" role="status">{message}</p>}
     </main>

@@ -38,8 +38,9 @@ export function saveResume(storage: Pick<Storage, 'setItem' | 'removeItem'>, dat
   else storage.removeItem(STORAGE_KEY)
 }
 
-export function clearResume(storage: Pick<Storage, 'removeItem'>): void {
+export function clearResume(storage: Pick<Storage, 'removeItem' | 'getItem'>): void {
   storage.removeItem(STORAGE_KEY)
+  if (storage.getItem(STORAGE_KEY) !== null) throw new Error('Os dados continuam no armazenamento do navegador.')
 }
 
 export function hasUserData(data: Resume): boolean {

@@ -22,6 +22,23 @@ test('salva, recupera e limpa dados apenas no armazenamento fornecido', () => {
   assert.equal(readResume(storage).name, '')
 })
 
+test('confirma a limpeza somente quando o armazenamento remove os dados', () => {
+  const storage = memoryStorage()
+  saveResume(storage, { ...initialResume, name: 'Pessoa Fictícia' })
+  assert.doesNotThrow(() => clearResume(storage))
+  assert.equal(storage.getItem(STORAGE_KEY), null)
+})
+
+test('detecta falha explícita ou silenciosa na remoção e mantém os dados', () => {
+  const data = JSON.stringify({ ...initialResume, name: 'Pessoa Fictícia' })
+  const throwing = { getItem: () => data, removeItem: () => { throw new Error('armazenamento bloqueado') } }
+  assert.throws(() => clearResume(throwing), /armazenamento bloqueado/)
+  assert.equal(throwing.getItem(STORAGE_KEY), data)
+  const silent = { getItem: () => data, removeItem: () => {} }
+  assert.throws(() => clearResume(silent), /continuam no armazenamento/)
+  assert.equal(silent.getItem(STORAGE_KEY), data)
+})
+
 test('ignora conteúdo corrompido ou de formato inesperado', () => {
   assert.equal(parseSavedResume('{'), null)
   assert.equal(parseSavedResume('{"experiences":{},"education":[]}'), null)
