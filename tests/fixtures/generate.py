@@ -4,6 +4,20 @@ from xml.sax.saxutils import escape
 from zipfile import ZIP_DEFLATED, ZipFile
 
 ROOT = Path(__file__).parent
+COMPLEX = [
+    'Lívia Monteiro', 'Analista de Dados', 'livia@exemplo.com',
+    'EXPERIÊNCIAS PROFISSIONAIS',
+    'Analista Sênior', 'Empresa Aurora | Sorocaba/SP', 'março de 2025 – atual', 'Liderei análises e documentei resultados.',
+    'Analista Pleno', 'Empresa Horizonte | Campinas, SP', 'janeiro de 2023 – fevereiro de 2025', 'Criei relatórios.',
+    'Analista Júnior | Empresa Cedro | Recife, PE | 2021 – 2022', 'Acompanhei indicadores.',
+    'Assistente | Empresa Lago | 2020 – 2021', 'Organizei arquivos.',
+    'Estagiária | Empresa Vento | 2019 – 2020', 'Participei de projetos.',
+    'FORMAÇÃO ACADÊMICA',
+    'Bacharelado em Estatística | Universidade Modelo | 2015 – 2019',
+    'Especialização em Dados | Instituto Exemplo | 2020 – 2021',
+    'CERTIFICAÇÕES', 'Certificação em Análise — Escola Aberta, 2024',
+    'IDIOMAS', 'Inglês — avançado', 'Espanhol — intermediário',
+]
 LINES = [
     "Ana Carolina Silva",
     "Analista de Marketing",
@@ -80,12 +94,17 @@ def make_docx():
         archive.writestr("[Content_Types].xml", content_types)
         archive.writestr("_rels/.rels", '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>')
         archive.writestr("word/document.xml", document)
+    complex_paragraphs = ''.join(f'<w:p><w:r><w:t>{escape(line)}</w:t></w:r></w:p>' for line in COMPLEX)
+    with ZipFile(ROOT / 'curriculo-complexo.docx', 'w', ZIP_DEFLATED) as archive:
+        archive.writestr('[Content_Types].xml', content_types)
+        archive.writestr('_rels/.rels', '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>')
+        archive.writestr('word/document.xml', f'<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>{complex_paragraphs}</w:body></w:document>')
 
 
-def make_pdf():
+def make_pdf(lines=LINES, filename='curriculo-ficticio.pdf'):
     commands = ["BT", "/F1 11 Tf"]
     y = 775
-    for line in LINES:
+    for line in lines:
         if not line:
             y -= 12
             continue
@@ -93,12 +112,12 @@ def make_pdf():
         commands.extend([f"1 0 0 1 50 {y} Tm", f"({safe}) Tj"])
         y -= 18
     commands.append("ET")
-    stream = "\n".join(commands).encode("ascii")
+    stream = "\n".join(commands).encode("cp1252")
     objects = [
         b"<< /Type /Catalog /Pages 2 0 R >>",
         b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
         b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
-        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+        b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>",
         f"<< /Length {len(stream)} >>\nstream\n".encode() + stream + b"\nendstream",
     ]
     pdf = bytearray(b"%PDF-1.4\n")
@@ -111,7 +130,7 @@ def make_pdf():
     for offset in offsets[1:]:
         pdf.extend(f"{offset:010d} 00000 n \n".encode())
     pdf.extend(f"trailer\n<< /Root 1 0 R /Size {len(objects) + 1} >>\nstartxref\n{xref}\n%%EOF\n".encode())
-    (ROOT / "curriculo-ficticio.pdf").write_bytes(pdf)
+    (ROOT / filename).write_bytes(pdf)
 
 
 def make_multi_pdf():
@@ -149,4 +168,5 @@ def make_multi_pdf():
 if __name__ == "__main__":
     make_docx()
     make_pdf()
+    make_pdf(COMPLEX, 'curriculo-complexo.pdf')
     make_multi_pdf()

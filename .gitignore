@@ -37,3 +37,5 @@ personal/
 !tests/fixtures/curriculo-ficticio.pdf
 !tests/fixtures/curriculo-ficticio.docx
 !tests/fixtures/curriculo-ficticio-multipagina.pdf
+!tests/fixtures/curriculo-complexo.pdf
+!tests/fixtures/curriculo-complexo.docx

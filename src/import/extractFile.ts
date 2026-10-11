@@ -1,5 +1,5 @@
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
-import { pageTextFromItems } from './pdfText'
+import { normalizePdfText, pageTextFromItems } from './pdfText'
 
 import { ensureUsableText, ImportError, MAX_FILE_SIZE, normalizeDocxText, validateDocxArchive, validateFile } from './fileValidation'
 
@@ -30,7 +30,7 @@ export async function extractFileText(file: File): Promise<string> {
           const page = await pdf.getPage(pageNumber)
           const content = await page.getTextContent()
           const items = content.items.filter(item => 'str' in item && 'transform' in item)
-          text += pageTextFromItems(items)
+          text += normalizePdfText(pageTextFromItems(items))
           if (text.length > MAX_TEXT_LENGTH) throw new ImportError('O texto do PDF é longo demais para importar com segurança.')
           text += '\n'
           page.cleanup()

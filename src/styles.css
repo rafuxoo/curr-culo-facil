@@ -16,3 +16,4 @@
 @media print{.import-review,.import-error,.import-progress{display:none!important}}
 
 .confidence-tag{background:#fff4cf;color:#86640d;font-size:9px;font-weight:800;border-radius:4px;padding:3px 6px}.entry-actions{display:flex;align-items:center;gap:4px}.entry-actions .icon-button{min-width:27px;min-height:27px;padding:3px 5px}.entry-actions .icon-button:disabled{opacity:.35}.review-entry .repeat-title{gap:10px}
+.review-source{background:#fff;border:1px solid #dbe7d9;border-radius:9px;padding:12px 14px;font-size:12px}.review-source summary{cursor:pointer;font-weight:800;color:#315f40}.review-source p{color:#627365;line-height:1.5}.review-source pre{max-height:360px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#f8faf7;padding:12px;border-radius:7px;line-height:1.5}
