@@ -242,3 +242,56 @@ Atuação em campo, análise e suporte.`).data
   assert.equal(data.experiences[0].location, 'Sorocaba/SP')
   assert.match(data.experiences[0].description, /campo, análise e suporte/)
 })
+
+test('separa contatos na mesma linha sem repeti-los no portfólio', () => {
+  const source = `Pessoa Exemplo
+Analista de Dados
+Contato
+pessoa@exemplo.com | (11) 98765-4321 | Campinas, SP | linkedin.com/in/pessoa-exemplo
+EXPERIÊNCIA PROFISSIONAL
+Analista – Empresa Fictícia | 2022 – atual`
+  const { data, sourceText } = parseResumeText(source)
+  assert.equal(data.name, 'Pessoa Exemplo')
+  assert.equal(data.role, 'Analista de Dados')
+  assert.equal(data.email, 'pessoa@exemplo.com')
+  assert.equal(data.phone, '(11) 98765-4321')
+  assert.equal(data.city, 'Campinas, SP')
+  assert.equal(data.linkedin, 'linkedin.com/in/pessoa-exemplo')
+  assert.equal(sourceText, source)
+  assert.equal(data.experiences.length, 1)
+})
+
+test('cidade rotulada não absorve outros contatos na mesma linha', () => {
+  const { data } = parseResumeText('Pessoa Exemplo\nCidade: Campinas, SP · E-mail: pessoa@exemplo.com · Telefone: (11) 98765-4321')
+  assert.equal(data.city, 'Campinas, SP')
+  assert.equal(data.email, 'pessoa@exemplo.com')
+  assert.equal(data.phone, '(11) 98765-4321')
+})
+
+test('separa habilidades técnicas da formação sem perder curso, instituição ou detalhes', () => {
+  const source = `Candidato Fictício
+FORMAÇÃO ACADÊMICA
+Bacharelado em Sistemas de Informação
+Universidade Exemplo
+2018 – 2022
+Ênfase em bancos de dados.
+HABILIDADES TÉCNICAS
+Python, SQL, Excel`
+  const { data, sourceText } = parseResumeText(source)
+  assert.equal(data.education.length, 1)
+  assert.equal(data.education[0].course, 'Bacharelado em Sistemas de Informação')
+  assert.equal(data.education[0].institution, 'Universidade Exemplo')
+  assert.equal(data.education[0].period, '2018 – 2022')
+  assert.equal(data.education[0].description, 'Ênfase em bancos de dados.')
+  assert.equal(data.skillsHeading, 'HABILIDADES TÉCNICAS')
+  assert.equal(data.skills, 'Python, SQL, Excel')
+  assert.equal(sourceText, source)
+})
+
+test('reconhece título técnico com conteúdo na mesma linha', () => {
+  const { data } = parseResumeText('FORMAÇÃO ACADÊMICA\nCurso Livre\nInstituto Exemplo\nHabilidades técnicas: Python, SQL')
+  assert.equal(data.education.length, 1)
+  assert.equal(data.skillsHeading, 'Habilidades técnicas')
+  assert.equal(data.skills, 'Python, SQL')
+  assert.doesNotMatch(data.education[0].description, /Habilidades|Python|SQL/)
+})

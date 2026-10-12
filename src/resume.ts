@@ -2,7 +2,7 @@ export type Experience = { id: number; role: string; company: string; period: st
 export type Education = { id: number; course: string; institution: string; period: string; location: string; description: string }
 export type Resume = {
   name: string; role: string; email: string; phone: string; city: string; linkedin: string
-  objective: string; skills: string; certifications: string; languages: string; experiences: Experience[]; education: Education[]
+  objective: string; skills: string; skillsHeading?: string; certifications: string; languages: string; experiences: Experience[]; education: Education[]
 }
 
 export const STORAGE_KEY = 'curriculo-facil:resume:v1'
@@ -11,6 +11,22 @@ export const initialResume: Resume = {
   name: '', role: '', email: '', phone: '', city: '', linkedin: '', objective: '', skills: '', certifications: '', languages: '',
   experiences: [{ id: 1, role: '', company: '', period: '', location: '', description: '' }],
   education: [{ id: 2, course: '', institution: '', period: '', location: '', description: '' }],
+}
+
+export function resumeContacts(data: Pick<Resume, 'email' | 'phone' | 'city' | 'linkedin'>): string[] {
+  const values = [data.email, data.phone, data.city, data.linkedin].map(value => value.trim())
+  const seen = new Set<string>()
+  return values.flatMap((value, index) => {
+    if (!value) return []
+    // Older imports may have stored an entire contact row as the portfolio.
+    if (index === 3 && values.slice(0, 3).some(other => other && value.includes(other))) {
+      value = value.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|•·,;]+|https?:\/\/[^\s|•·,;]+/i)?.[0] ?? ''
+    }
+    const key = value.replace(/\s+/g, ' ').toLocaleLowerCase('pt-BR')
+    if (!key || seen.has(key)) return []
+    seen.add(key)
+    return [value]
+  })
 }
 
 const text = (value: unknown) => typeof value === 'string' ? value : ''
@@ -25,7 +41,7 @@ export function parseSavedResume(raw: string | null): Resume | null {
     if (!Array.isArray(source.experiences) || !Array.isArray(source.education)) return null
     const experiences = source.experiences.filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && !Array.isArray(item) && validId((item as Record<string, unknown>).id)).map(item => ({ id: item.id as number, role: text(item.role), company: text(item.company), period: text(item.period), location: text(item.location), description: text(item.description) }))
     const education = source.education.filter((item): item is Record<string, unknown> => !!item && typeof item === 'object' && !Array.isArray(item) && validId((item as Record<string, unknown>).id)).map(item => ({ id: item.id as number, course: text(item.course), institution: text(item.institution), period: text(item.period), location: text(item.location), description: text(item.description) }))
-    return { name: text(source.name), role: text(source.role), email: text(source.email), phone: text(source.phone), city: text(source.city), linkedin: text(source.linkedin), objective: text(source.objective), skills: text(source.skills), certifications: text(source.certifications), languages: text(source.languages), experiences, education }
+    return { name: text(source.name), role: text(source.role), email: text(source.email), phone: text(source.phone), city: text(source.city), linkedin: text(source.linkedin), objective: text(source.objective), skills: text(source.skills), skillsHeading: text(source.skillsHeading), certifications: text(source.certifications), languages: text(source.languages), experiences, education }
   } catch { return null }
 }
 

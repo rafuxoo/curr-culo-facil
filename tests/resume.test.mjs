@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { addEducation, addExperience, clearResume, initialResume, parseSavedResume, readResume, removeEducation, removeExperience, saveResume, STORAGE_KEY, validateResume } from '../src/resume.ts'
+import { addEducation, addExperience, clearResume, initialResume, parseSavedResume, readResume, removeEducation, removeExperience, resumeContacts, saveResume, STORAGE_KEY, validateResume } from '../src/resume.ts'
 
 function memoryStorage() {
   const items = new Map()
@@ -63,4 +63,16 @@ test('exige nome e e-mail válido antes da exportação', () => {
   assert.deepEqual(validateResume(initialResume), { name: 'Informe seu nome completo.', email: 'Informe seu e-mail.' })
   assert.equal(validateResume({ ...initialResume, name: 'Ana', email: 'ana@' }).email, 'Informe um e-mail válido.')
   assert.deepEqual(validateResume({ ...initialResume, name: 'Ana', email: 'ana@exemplo.com' }), {})
+})
+
+test('prévia exibe contatos uma vez, inclusive dados de importações antigas', () => {
+  const current = { email: 'pessoa@exemplo.com', phone: '(11) 98765-4321', city: 'Campinas, SP', linkedin: 'linkedin.com/in/pessoa-exemplo' }
+  assert.deepEqual(resumeContacts(current), Object.values(current))
+  assert.deepEqual(resumeContacts({ ...current, linkedin: 'pessoa@exemplo.com | (11) 98765-4321 | Campinas, SP | linkedin.com/in/pessoa-exemplo' }), Object.values(current))
+  assert.deepEqual(resumeContacts({ ...current, linkedin: ' pessoa@exemplo.com ' }), Object.values(current).slice(0, 3))
+})
+
+test('mantém o título de habilidades técnicas no currículo salvo', () => {
+  const saved = { ...initialResume, skills: 'Python, SQL', skillsHeading: 'HABILIDADES TÉCNICAS' }
+  assert.equal(parseSavedResume(JSON.stringify(saved))?.skillsHeading, 'HABILIDADES TÉCNICAS')
 })

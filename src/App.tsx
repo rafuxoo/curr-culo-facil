@@ -104,7 +104,7 @@ function App() {
       window.setTimeout(() => document.getElementById(found.name ? 'full-name' : 'email')?.focus(), 0)
       return
     }
-    setMessage('Na janela de impressão, escolha “Salvar como PDF” e papel A4. Confira a prévia antes de salvar.')
+    setMessage('Na janela de impressão, escolha “Salvar como PDF”, papel A4 e desative “Cabeçalhos e rodapés”. Confira todas as páginas.')
     window.print()
   }
 
@@ -126,7 +126,7 @@ function App() {
         <section className="form-section"><div className="section-heading"><span className="section-icon"><Icon name="book" size={20}/></span><div><h3>Idiomas</h3><p>Informe idiomas e níveis como constam no seu currículo.</p></div></div><TextField label="Idiomas" value={data.languages} onChange={value => update('languages', value)} placeholder="Ex.: Inglês — avançado" rows={3}/></section>
         <section className="form-section last-section"><div className="section-heading"><span className="section-icon"><Icon name="spark" size={20}/></span><div><h3>Habilidades</h3><p>Destaque o que você faz bem.</p></div></div><TextField label="Suas habilidades" value={data.skills} onChange={value => update('skills', value)} placeholder="Ex.: Excel, atendimento ao cliente, comunicação, gestão de projetos" rows={3}/><p className="field-help">Separe cada habilidade por vírgula ou linha.</p></section>
       </div><aside className={`preview-panel ${activeTab !== 'preview' ? 'mobile-hidden' : ''}`}><div className="preview-toolbar"><div><span className="live-dot"/> PRÉ-VISUALIZAÇÃO AO VIVO</div><span>Formato A4</span></div><div className="paper-frame"><ResumePage data={data}/></div><div className="preview-footer"><Icon name="check" size={16}/> Modelo profissional gratuito</div></aside></div>
-      <div className="bottom-action"><div><strong>Pronto para dar o próximo passo?</strong><p>Revise os dados e salve seu currículo em PDF.</p></div><button className="button button-primary" onClick={exportPdf}><Icon name="download" size={18}/> Exportar meu currículo</button></div>
+      <div className="bottom-action"><div><strong>Pronto para dar o próximo passo?</strong><p>Revise os dados e salve seu currículo em PDF. Na janela de impressão, escolha A4, desative “Cabeçalhos e rodapés” e confira todas as páginas.</p></div><button className="button button-primary" onClick={exportPdf}><Icon name="download" size={18}/> Exportar meu currículo</button></div>
       <div className="privacy-controls"><p className="privacy-note"><Icon name="shield" size={16}/> Seus dados são salvos automaticamente neste dispositivo. Não são enviados a servidores. Em dispositivo compartilhado, apague-os após o uso.</p><button type="button" className="clear-button" onClick={clearData}><Icon name="trash" size={16}/> Limpar meus dados</button></div>{storageError && <p className="storage-error" role="alert">{storageError}</p>}
       </>}
       {message && <p className="status-message" role="status">{message}</p>}

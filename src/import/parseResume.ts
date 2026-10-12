@@ -11,20 +11,22 @@ const sections: Record<string, Section> = {
   certificacao: 'certifications', certificacoes: 'certifications', certificados: 'certifications', 'cursos e certificacoes': 'certifications', 'certificacoes e cursos': 'certifications', 'cursos complementares': 'certifications',
   idioma: 'languages', idiomas: 'languages', linguas: 'languages', 'idiomas e linguas': 'languages',
   habilidades: 'skills', competencias: 'skills', conhecimentos: 'skills', 'habilidades e competencias': 'skills',
+  'habilidades tecnicas': 'skills', 'competencias tecnicas': 'skills', 'conhecimentos tecnicos': 'skills',
   projetos: 'other', voluntariado: 'other', referencias: 'other', publicacoes: 'other', premios: 'other',
 }
 
 const clean = (value: string) => value.normalize('NFKC').replace(/\u00a0/g, ' ').replace(/[\t ]+/g, ' ').trim()
 const headingKey = (line: string) => clean(line).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/^\d+[.)]\s*/, '').replace(/^[•*-]\s*/, '').replace(/[:.\-–—\s]+$/g, '').trim()
 const heading = (line: string): Section | undefined => sections[headingKey(line)]
-const inlineHeading = (line: string): { section: Section; text: string } | undefined => {
+const inlineHeading = (line: string): { section: Section; text: string; label: string } | undefined => {
   const match = line.match(/^([^:]{3,48}):\s*(.+)$/)
   const section = match && heading(match[1])
-  return section ? { section, text: match![2] } : undefined
+  return section ? { section, text: match![2], label: clean(match![1]) } : undefined
 }
 const emailPattern = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i
 const phonePattern = /(?:\+?55[\s().-]*)?(?:\(?\d{2}\)?[\s.-]*)?\d{4,5}[\s.-]*\d{4}\b/
 const cityPattern = /\b([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ' .-]{2,48})\s*[,/–-]\s*([A-Z]{2})\b/
+const portfolioPattern = /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|•·,;]+|https?:\/\/[^\s|•·,;]*portfolio[^\s|•·,;]*/i
 const month = '(?:jan(?:eiro)?|fev(?:ereiro)?|mar(?:[cç]o)?|abr(?:il)?|mai(?:o)?|jun(?:ho)?|jul(?:ho)?|ago(?:sto)?|set(?:embro)?|out(?:ubro)?|nov(?:embro)?|dez(?:embro)?)\\.?'
 const date = `(?:${month}(?:\\s+de)?\\s+|\\d{1,2}[/.])?(?:19|20)\\d{2}`
 const range = new RegExp(`(?:${date})\\s*(?:[-–—]|\\ba\\b|\\baté\\b)\\s*(?:(?:${date})|atual|presente|hoje|em andamento)`, 'i')
@@ -241,21 +243,32 @@ export function parseResumeText(raw: string): ImportedResume {
   const lines = raw.replace(/\r\n?/g, '\n').replace(/\f/g, '\n\n').split('\n').map(clean)
   const parts: Record<Section, string[]> = { header: [], contact: [], objective: [], experiences: [], education: [], certifications: [], languages: [], skills: [], other: [] }
   let current: Section = 'header'
+  let skillsHeading = ''
   for (const line of lines) {
     const next = heading(line)
-    if (next) { current = next; continue }
+    if (next) {
+      current = next
+      if (next === 'skills' && /(?:tecnicas|tecnicos)$/.test(headingKey(line))) skillsHeading = line.replace(/[:.\-–—\s]+$/g, '')
+      continue
+    }
     const inline = inlineHeading(line)
-    if (inline) { current = inline.section; parts[current].push(inline.text); continue }
+    if (inline) {
+      current = inline.section
+      if (current === 'skills' && /(?:tecnicas|tecnicos)$/.test(headingKey(inline.label))) skillsHeading = inline.label
+      parts[current].push(inline.text)
+      continue
+    }
     parts[current].push(line)
   }
   const allLines = lines.filter(Boolean)
   const header = parts.header.filter(Boolean)
   const name = labeled(allLines, 'nome(?: completo)?') || header.find(line => !emailPattern.test(line) && !phonePattern.test(line) && !periodFrom(line) && !/^(?:curr[ií]culo|curriculum|resume)\b/i.test(line) && /^[A-Za-zÀ-ÿ' -]+$/.test(line) && line.split(/\s+/).length >= 2 && line.split(/\s+/).length <= 6) || ''
-  const role = labeled(header, 't[ií]tulo profissional|cargo desejado') || header.find(line => line !== name && !emailPattern.test(line) && !phonePattern.test(line) && !heading(line) && line.length < 85) || ''
+  const role = labeled(header, 't[ií]tulo profissional|cargo desejado') || header.find(line => line !== name && !emailPattern.test(line) && !phonePattern.test(line) && !cityPattern.test(line) && !portfolioPattern.test(line) && !/^(?:cidade|localiza[cç][aã]o|linkedin|portf[oó]lio)\s*:/i.test(line) && !heading(line) && line.length < 85) || ''
   const email = allLines.join(' ').match(emailPattern)?.[0] ?? ''
   const phone = (labeled(allLines, 'telefone|celular|fone|whatsapp') || allLines.find(line => phonePattern.test(line) && !periodFrom(line)) || '').match(phonePattern)?.[0] ?? ''
-  const city = labeled(allLines, 'cidade|localiza[cç][aã]o') || [...header, ...parts.contact].map(line => line.match(cityPattern)?.[0] ?? '').find(Boolean) || ''
-  const linkedin = allLines.find(line => /(?:linkedin\.com\/in\/|https?:\/\/[^\s]+portfolio)/i.test(line)) ?? ''
+  const labeledCity = labeled(allLines, 'cidade|localiza[cç][aã]o')
+  const city = labeledCity ? labeledCity.match(cityPattern)?.[0] || labeledCity.split(/\s*[|•·;]\s*/)[0] : [...header, ...parts.contact].map(line => line.match(cityPattern)?.[0] ?? '').find(Boolean) || ''
+  const linkedin = allLines.map(line => line.match(portfolioPattern)?.[0] ?? '').find(Boolean) ?? ''
   const parsedExperiences = parseEntries(parts.experiences, 'experiences')
   const parsedEducation = parseEntries(parts.education, 'education')
   const data: Resume = {
@@ -266,6 +279,7 @@ export function parseResumeText(raw: string): ImportedResume {
     certifications: parts.certifications.filter(Boolean).join('\n'),
     languages: parts.languages.filter(Boolean).join('\n'),
     skills: parts.skills.filter(Boolean).map(line => line.replace(/^[-•*]\s*/, '')).join(', ').replace(/\s*[,;]\s*/g, ', '),
+    skillsHeading,
   }
   const missing = getMissingFields(data)
   const warnings: string[] = []

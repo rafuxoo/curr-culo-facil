@@ -1,8 +1,8 @@
 import Icon from './Icon'
-import type { Resume } from './resume'
+import { resumeContacts, type Resume } from './resume'
 
 export function ResumePage({ data }: { data: Resume }) {
-  const contact = [data.email, data.phone, data.city, data.linkedin].filter(Boolean)
+  const contact = resumeContacts(data)
   const experiences = data.experiences.filter(item => Object.values(item).some(value => typeof value === 'string' && value.trim()))
   const education = data.education.filter(item => Object.values(item).some(value => typeof value === 'string' && value.trim()))
   const skills = data.skills.split(/[,\n]/).map(item => item.trim()).filter(Boolean)
@@ -21,7 +21,7 @@ export function ResumePage({ data }: { data: Resume }) {
     {education.length > 0 && <section className="resume-section"><h2>Formação acadêmica</h2>{education.map(item => <div className="resume-entry" key={item.id}><div className="entry-heading"><strong>{item.course || 'Curso'}</strong>{item.period && <span>{item.period}</span>}</div>{(item.institution || item.location) && <p className="entry-subtitle">{[item.institution, item.location].filter(Boolean).join(' · ')}</p>}{item.description && <p className="resume-text">{item.description}</p>}</div>)}</section>}
     {data.certifications.trim() && <section className="resume-section"><h2>Certificações</h2><p className="resume-text">{data.certifications}</p></section>}
     {data.languages.trim() && <section className="resume-section"><h2>Idiomas</h2><p className="resume-text">{data.languages}</p></section>}
-    {skills.length > 0 && <section className="resume-section"><h2>Habilidades</h2><p className="resume-text">{skills.join('  ·  ')}</p></section>}
+    {skills.length > 0 && <section className="resume-section"><h2>{data.skillsHeading || 'Habilidades'}</h2><p className="resume-text">{skills.join('  ·  ')}</p></section>}
   </article>
 }
 

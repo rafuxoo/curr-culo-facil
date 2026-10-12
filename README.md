@@ -46,13 +46,13 @@ Com o túnel ativo, abra `http://127.0.0.1:5173` no navegador do celular. Substi
 
 ## PDF
 
-Preencha nome e e-mail válido, toque em **Exportar meu currículo** e, no diálogo de impressão, escolha **Salvar como PDF**. Use papel **A4**, escala padrão e desative cabeçalhos/rodapés do navegador se aparecerem. Revise todas as páginas da prévia antes de salvar.
+Preencha nome e e-mail válido, toque em **Exportar meu currículo** e, no diálogo de impressão, escolha **Salvar como PDF**. Use papel **A4** e escala padrão. Desative **Cabeçalhos e rodapés** nas opções de impressão do navegador para evitar data, endereço e número de página adicionados por ele. Revise todas as páginas da prévia antes de salvar. O CSS define A4, margens e quebras de conteúdo, mas não consegue controlar os cabeçalhos e rodapés gerados pelo navegador.
 
 ## Importar currículo
 
 Toque em **Importar currículo** e escolha um PDF com texto selecionável ou um DOCX de até **5 MB**. A leitura acontece localmente. Na tela de revisão, confira e corrija os campos identificados; campos vazios aparecem como **Não reconhecido**. O formulário só recebe os dados após tocar em **Usar estes dados**. Se já houver dados salvos, a aplicação pede confirmação antes de substituí-los. Ao cancelar, o formulário atual permanece intacto.
 
-PDFs digitalizados sem camada de texto, arquivos protegidos por senha, documentos inválidos e DOCX que expandem para tamanho excessivo mostram um erro. OCR e arquivos `.doc` antigos não são aceitos nesta etapa. A importação pode exigir ajustes manuais em documentos com diagramação complexa.
+PDFs digitalizados sem camada de texto, arquivos protegidos por senha, documentos inválidos e DOCX que expandem para tamanho excessivo mostram um erro. OCR e arquivos `.doc` antigos não são aceitos nesta etapa. A importação reconhece títulos como **Habilidades técnicas** como seção própria e mantém esse título na prévia e no PDF. Documentos com diagramação complexa ainda podem exigir ajustes manuais.
 
 ## Verificações
 
